@@ -1,7 +1,9 @@
 const db = require("../models");
 const { Sequelize, Op, QueryTypes } = require("sequelize");
+const post = require("../models/post");
 const Users = db.users;
 const Posts = db.posts;
+const Tags = db.tags;
 var addUser = async (req, res) => {
   let data = await Users.create({ name: "utsav", email: "abcd", gender: "M" });
   console.log(data.dataValues);
@@ -10,7 +12,11 @@ var addUser = async (req, res) => {
 };
 var crudOperation = async (req, res) => {
   //inserting the data
-  // let data = await Users.create({ name: "xi", email: "xi", gender: "F" });
+  // let data = await Users.create({
+  //   name: "xi1",
+  //   email: "xi1@uts.com",
+  //   gender: "F",
+  // });
   // res.status(200).json({ data });
   //updating the data
   // let data = await Users.update(
@@ -107,11 +113,69 @@ let rawQuery = async (req, res) => {
   });
 };
 
+//One to one relationship it will retrive post details of user with user details.
 let oneToOne = async (req, res) => {
-  let data = await Users.findAll({});
+  let data = await Users.findAll({
+    attributes: ["name", "email"],
+    include: [
+      {
+        model: Posts,
+        attributes: ["title", ["title", "name"]],
+      },
+    ],
+    where: { id: 2 },
+  });
   res.status(200).json({ data });
 };
 
+let belongTo = async (req, res) => {
+  let data = await Posts.findAll({
+    attributes: ["content", "title"],
+    include: {
+      model: Users,
+      attributes: ["name", "email"],
+    },
+  });
+  res.status(200).json({ data });
+};
+
+let hasMany = async (req, res) => {
+  let data = await Users.findAll({
+    attributes: ["name", "email"],
+    include: [
+      {
+        model: Posts,
+        attributes: ["title", ["name", "Postname"]],
+      },
+    ],
+    where: {
+      id: 2,
+    },
+  });
+  res.status(200).json({
+    data,
+  });
+};
+
+let ManyToMany = async (req, res) => {
+  //This is for post to tag -- which post contain which tag
+  // let data = await Posts.findAll({
+  //   include: [
+  //     {
+  //       model: Tags,
+  //     },
+  //   ],
+  // });
+  //This is for tag to post -- which tag contain which post
+  let data = await Tags.findAll({
+    include: [
+      {
+        model: Posts,
+      },
+    ],
+  });
+  res.status(200).json({ data });
+};
 module.exports = {
   addUser,
   crudOperation,
@@ -119,4 +183,7 @@ module.exports = {
   validationController,
   rawQuery,
   oneToOne,
+  belongTo,
+  hasMany,
+  ManyToMany,
 };
