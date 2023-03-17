@@ -27,8 +27,16 @@ db.sequelize
 
 db.users = require("./user")(sequelize, DataTypes);
 db.posts = require("./post")(sequelize, DataTypes);
+db.tags = require("./tags")(sequelize, DataTypes);
+db.post_tag = require("./post_tag")(sequelize, DataTypes);
 
 //defining relationship
-db.users.hasOne(db.posts);
+
+//one to many relationship
+db.users.hasMany(db.posts);
 db.posts.belongsTo(db.users);
+db.users.hasOne(db.posts);
+//many to many relationship
+db.posts.belongsToMany(db.tags, { through: "post_tag" });
+db.tags.belongsToMany(db.posts, { through: "post_tag" });
 module.exports = db;
