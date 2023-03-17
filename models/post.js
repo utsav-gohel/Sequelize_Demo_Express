@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       content: DataTypes.STRING,
       user_id: DataTypes.INTEGER,
     },
-    {}
+    { createdAt: false, updatedAt: false }
   );
   return Posts;
 };
